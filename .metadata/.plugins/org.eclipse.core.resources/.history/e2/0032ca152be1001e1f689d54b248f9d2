@@ -1,0 +1,98 @@
+package my.com.cmg.iwp.common.util;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class StringUtil {
+
+	public static final SimpleDateFormat SDF = new SimpleDateFormat(
+			"dd-MM-yyyy");
+	public static final DecimalFormat MONEY_FORMATTER = new DecimalFormat(
+			"#,##0.00");
+	public static final DecimalFormat QUANTITY_FORMATTER = new DecimalFormat(
+			"#,##0");
+
+	public static String emptyIfNull(String s) {
+		return s == null ? "" : s;
+	}
+
+	public static boolean empty(String s) {
+		return s == null || s.trim().equals("");
+	}
+
+	public static long longValue(String s) {
+		if (s != null) {
+			try {
+				return Long.valueOf(s).longValue();
+			} catch (Exception e) {
+			}
+		}
+		return 0L;
+	}
+
+	public static int intValue(String s) {
+		if (s != null) {
+			try {
+				return Integer.valueOf(s).intValue();
+			} catch (Exception e) {
+			}
+		}
+		return 0;
+	}
+
+	public static Date toDate(String s) {
+		try {
+			return SDF.parse(s);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static java.sql.Date toSQLDate(String s) {
+		try {
+			Date date = SDF.parse(s);
+			if (date != null) {
+				return new java.sql.Date(date.getTime());
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static String formatDate(Date date) {
+		try {
+			return SDF.format(date);
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	public static String formatQuantity(long quantity) {
+		try {
+			return QUANTITY_FORMATTER.format(quantity);
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	public static String formatMoney(double amount) {
+		try {
+			return MONEY_FORMATTER.format(amount);
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	public static String removeSign(String number, char pattern) {
+		char[] newNumber = number.toCharArray();
+		String num = "";
+
+		for (int i = 0; i < number.length(); i++) {
+			if (newNumber[i] != pattern)
+				num += newNumber[i];
+		}
+		return num;
+	}
+}

@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.drugInfo.impl;
+
+import my.com.cmg.iwp.backend.model.drugInfo.RespondDetail;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class RespondDetailDAOImpl extends BasisNextidDaoImpl<RespondDetail>{
+
+}

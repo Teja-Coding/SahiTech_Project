@@ -1,0 +1,7 @@
+package my.com.cmg.iwp.backend.dao.drugInfo.impl;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class DiUtilDAOImpl extends BasisNextidDaoImpl{
+
+}

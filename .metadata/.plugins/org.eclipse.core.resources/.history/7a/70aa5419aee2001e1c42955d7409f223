@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.inventory.penalty;
+
+import my.com.cmg.iwp.backend.model.inventory.penalty.PenaltyVerificationDtl;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class PenaltyVerificationDtlDAOImpl extends BasisNextidDaoImpl<PenaltyVerificationDtl> {
+
+}

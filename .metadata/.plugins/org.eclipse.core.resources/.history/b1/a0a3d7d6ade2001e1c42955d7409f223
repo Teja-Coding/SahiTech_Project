@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.integration.issue.impl;
+
+import my.com.cmg.iwp.backend.model.integration.issue.IssueDtlsInt;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class IssueDtlsIntDAOImpl extends BasisNextidDaoImpl<IssueDtlsInt> {
+
+}

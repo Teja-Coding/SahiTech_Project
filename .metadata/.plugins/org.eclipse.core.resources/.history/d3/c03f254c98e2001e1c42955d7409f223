@@ -1,0 +1,7 @@
+package my.com.cmg.iwp.backend.dao.integration.impl;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class GeneralDAOImpl extends BasisNextidDaoImpl {
+
+}

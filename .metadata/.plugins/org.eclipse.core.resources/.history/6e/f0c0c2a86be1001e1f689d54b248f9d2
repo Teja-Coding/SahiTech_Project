@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.integration.issue.impl;
+
+public class Snippet {
+	public static void main(String[] args) {
+		my.com.cmg.iwp.backend.dao.integration.issue.impl
+	}
+}
+

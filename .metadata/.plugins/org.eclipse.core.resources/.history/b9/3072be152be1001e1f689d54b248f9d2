@@ -1,0 +1,38 @@
+package my.com.cmg.iwp.common.util;
+
+import java.util.Map;
+
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Page;
+import org.zkoss.zk.ui.util.Initiator;
+import org.zkoss.zk.ui.util.InitiatorExt;
+import org.zkoss.zkplus.databind.AnnotateDataBinder;
+import org.zkoss.zul.Window;
+
+public class WindowDataBinderInit implements Initiator, InitiatorExt {
+
+	@SuppressWarnings("rawtypes")
+	public void doInit(Page page, Map args) throws Exception {
+	}
+
+	public void doAfterCompose(Page page) throws Exception {
+	}
+
+	public void doAfterCompose(Page page, Component[] components)
+			throws Exception {
+		for (Component c : components) {
+			if (c instanceof Window) {
+				AnnotateDataBinder binder = new AnnotateDataBinder(c, true);
+				c.setAttribute("binder", binder, true);
+				binder.loadAll();
+			}
+		}
+	}
+
+	public boolean doCatch(Throwable throwable) throws Exception {
+		return false;
+	}
+
+	public void doFinally() throws Exception {
+	}
+}

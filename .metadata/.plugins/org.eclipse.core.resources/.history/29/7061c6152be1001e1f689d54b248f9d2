@@ -1,0 +1,19 @@
+package my.com.cmg.iwp.common.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Tapan Kumar Sabat
+ *
+ */
+public class ListViewBean {
+
+	private Object seqNo;
+	private List<Object> displayDataList = new ArrayList<Object>();
+	
+	public Object getSeqNo() { return seqNo; }
+	public void setSeqNo(Object seqNo) { this.seqNo = seqNo; }
+	public List<Object> getDisplayDataList() { return displayDataList; }
+	public void setDisplayDataList(List<Object> displayDataList) { this.displayDataList = displayDataList; }
+}

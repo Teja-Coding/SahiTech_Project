@@ -1,0 +1,12 @@
+package my.com.cmg.iwp.backend.dao.impl;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+import my.com.cmg.iwp.backend.model.TaskLists;
+
+/**
+ * @author Tapan Kumar Sabat
+ *
+ */
+public class TaskListDAOImpl extends BasisNextidDaoImpl<TaskLists> {
+
+}

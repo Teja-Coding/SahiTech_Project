@@ -1,0 +1,255 @@
+package my.com.cmg.iwp.common.util;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+import my.com.cmg.iwp.webui.component.Listcell;
+import my.com.cmg.iwp.webui.util.pagging.PagedListWrapper;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.zkoss.lang.Strings;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.sys.ComponentsCtrl;
+import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zul.FieldComparator;
+import org.zkoss.zul.Grid;
+import org.zkoss.zul.ListModelList;
+import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listheader;
+import org.zkoss.zul.Listitem;
+import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Paging;
+import org.zkoss.zul.event.ListDataEvent;
+import org.zkoss.zul.event.PagingEvent;
+
+/**
+ * @author Tapan Kumar Sabat
+ *
+ * @param <E extends SearchViewBean>
+ */
+public class NewPagedListWrapper<E extends Object> extends ListModelList implements Serializable {
+
+	private static final long serialVersionUID = -7399762307122148637L;
+	static final Logger logger = Logger.getLogger(PagedListWrapper.class);
+
+	private BasisNextidDaoImpl generalDAO;
+	private SearchObject<E> searchObject;
+	private Listbox listbox;
+	private Grid grid;
+	private Paging paging;
+	
+	/**
+	 * default constructor.<br>
+	 */
+	public NewPagedListWrapper() {
+		super();
+	}
+	
+	@Override
+	public void sort(Comparator cmpr, boolean ascending) {
+		//Collections.sort(_list, cmpr);
+		super.fireEvent(ListDataEvent.STRUCTURE_CHANGED, -1, -1);
+	}
+	
+	public void init1(SearchObject<E> searchObject, Listbox listBox, Paging paging1,boolean doRender,String onClickMethod) {
+		setPaging(paging1);
+		setListbox(listBox);
+		if(doRender) autoRenderListbox(onClickMethod);
+		setListeners(getListbox());
+		getPaging().setActivePage(0);
+		setSearchObject(searchObject);
+		getSearchObject().setGeneralDAO(getGeneralDAO());
+		getPaging().setTotalSize(getSearchObject().countSearchObjectResult());
+		refreshModel(0);
+	}
+
+	public void init(SearchObject<E> searchObject, Listbox listBox, Paging paging1,boolean doRender,String onClickMethod) {
+		setPaging(paging1);
+		setListbox(listBox);
+		if(doRender) renderListbox(onClickMethod);
+		setListeners(getListbox());
+		getPaging().setActivePage(0);
+		setSearchObject(searchObject);
+		getSearchObject().setGeneralDAO(getGeneralDAO());
+		getPaging().setTotalSize(getSearchObject().countSearchObjectResult());
+		refreshModel(0);
+	}
+	
+	public void initGrid(SearchObject<E> searchObject, Grid grid, Paging paging1,boolean doRender,String onClickMethod) {
+		setPaging(paging1);
+		setGrid(grid);
+		setListeners(getGrid());
+		getPaging().setActivePage(0);
+		setSearchObject(searchObject);
+		getSearchObject().setGeneralDAO(getGeneralDAO());
+		getPaging().setTotalSize(getSearchObject().countSearchObjectResult());
+		refreshModel(0);
+	}
+	
+	/**
+	 * @param start
+	 *            Row to start. <br>
+	 */
+	public void refreshModel(int start) {
+		clear();														// clear old data
+		int max = getSearchObject().getMaxResults();					// get max results
+		getSearchObject().setMaxResults(max < 0 ? getPageSize() : max);	// set MAX results
+		getSearchObject().setFirstResult(start);						// set FIRST result
+		addAll(getSearchObject().getSearchResult(start,getPageSize()));
+		Clients.evalJavaScript("onRenderCommonJSFunction();");
+	}
+	
+	/**
+	 * Sets the listeners for Listbox
+	 */
+	private void setListeners(Listbox listBox) {
+		setSortEventListener(listBox.getListhead().getChildren());
+		listBox.setModel(this);
+	}
+	
+	/**
+	 * Sets the listeners Grid
+	 */
+	private void setListeners(Grid grid) {
+		setSortEventListener(grid.getColumns().getChildren());
+		grid.setModel(this);
+	}
+	
+	private void setSortEventListener(final List<?> list) {
+		Iterator it = getPaging().getEventListeners("onPaging").iterator();
+		while (it.hasNext()) {
+			it.next();
+			it.remove();
+		}
+		getPaging().addEventListener("onPaging", new OnPagingEventListener());
+
+		final OnSortEventListener onSortEventListener = new OnSortEventListener();
+		for (final Object object : list) {
+ 			if (object instanceof Listheader) {
+				final Listheader lheader = (Listheader) object;
+
+				if (lheader.getSortAscending() != null || lheader.getSortDescending() != null) {
+					Iterator sortIt = lheader.getEventListeners("onSort").iterator();
+					while (sortIt.hasNext()) {
+						sortIt.next();
+						sortIt.remove();
+					}
+					lheader.addEventListener("onSort", onSortEventListener);
+				}
+			}
+		}
+	}
+	
+	/*************************************************/
+	/****************HELPER INNER CLASSES*************/
+	/*************************************************/
+	
+	/**
+	 * "onPaging" EventListener for the paging component. <br>
+	 */
+	public final class OnPagingEventListener implements EventListener {
+		@Override
+		public void onEvent(Event event) throws Exception {
+			final PagingEvent pe = (PagingEvent) event;
+			final int pageNo = pe.getActivePage();
+			final int start = pageNo * getPageSize();
+
+			// refresh the list
+			refreshModel(start);
+		}
+	}
+
+	/**
+	 * "onSort" eventlistener for the listheader components. <br>
+	 */
+	public final class OnSortEventListener implements EventListener, Serializable {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void onEvent(Event event) throws Exception {
+			final Listheader lh = (Listheader) event.getTarget();
+			final String sortDirection = lh.getSortDirection();
+
+			if ("ascending".equals(sortDirection)) {
+				final Comparator<?> cmpr = lh.getSortDescending();
+				if (cmpr instanceof FieldComparator) {
+					String orderBy = ((FieldComparator) cmpr).getOrderBy();
+					orderBy = StringUtils.substringBefore(orderBy, "DESC").trim();
+					orderBy = getSearchObject().getSelectedAttributesAnnotation(orderBy);
+
+					// update SearchObject with orderBy
+					getSearchObject().clearSorts();
+					getSearchObject().addSort(orderBy, true);
+				}
+			} else if ("descending".equals(sortDirection) || "natural".equals(sortDirection) || Strings.isBlank(sortDirection)) {
+				final Comparator<?> cmpr = lh.getSortAscending();
+				if (cmpr instanceof FieldComparator) {
+					String orderBy = ((FieldComparator) cmpr).getOrderBy();
+					orderBy = StringUtils.substringBefore(orderBy, "ASC").trim();
+					orderBy = getSearchObject().getSelectedAttributesAnnotation(orderBy);
+
+					// update SearchObject with orderBy
+					getSearchObject().clearSorts();
+					getSearchObject().addSort(orderBy, false);
+				}
+			}
+
+			/**
+			 * A changing of the sort order implies that the list starts new. So
+			 * we set the startpage to '0' and refresh the list.
+			 */
+			getPaging().setActivePage(0);
+			refreshModel(0);
+		}
+	}
+	
+	public void renderListbox(final String methodStr) {
+		if(getListbox() != null) {
+			getListbox().setItemRenderer(new ListitemRenderer<E>(){
+				@Override
+				public void render(Listitem item, E viewbean ,int var) throws Exception {
+					for(Field field : getSearchObject().getSearchClass().getDeclaredFields()) {
+						if (field.isAnnotationPresent(SelectedAttributes.class)) {
+							String data = field.get(viewbean) != null ? field.get(viewbean).toString() : "";
+							item.appendChild(new Listcell(data));
+						}
+					}
+					item.setAttribute("data", viewbean);
+					
+					if(methodStr != null) ComponentsCtrl.applyForward(item,methodStr);
+				}
+			});
+		}
+	}
+	
+	public void autoRenderListbox(final String methodStr) {
+		if(getListbox() != null) {
+			getListbox().setItemRenderer(new ListitemRenderer<ListViewBean>(){
+				@Override
+				public void render(Listitem item, ListViewBean bean ,int var) throws Exception {
+					for(Object object : bean.getDisplayDataList()) item.appendChild(new Listcell(object.toString()));
+					item.setAttribute("data", bean);
+					if(methodStr != null) ComponentsCtrl.applyForward(item,methodStr);
+				}
+			});
+		}
+	}
+	/******ACCESSORS AND MUTATORS******/
+	public SearchObject<E> getSearchObject() { return this.searchObject; }
+	public void setSearchObject(SearchObject<E> searchObject) { this.searchObject = searchObject; }
+	public int getPageSize() { return getPaging().getPageSize(); }
+	private Paging getPaging() { return this.paging; }
+	private void setPaging(Paging paging) { this.paging = paging; }
+	public Listbox getListbox() { return listbox; }
+	public void setListbox(Listbox listbox) { this.listbox = listbox; }
+	public Grid getGrid() { return grid; }
+	public void setGrid(Grid grid) { this.grid = grid; }
+	public BasisNextidDaoImpl getGeneralDAO() { return this.generalDAO; }
+	public void setGeneralDAO(BasisNextidDaoImpl generalDAO) { this.generalDAO = generalDAO; }
+}

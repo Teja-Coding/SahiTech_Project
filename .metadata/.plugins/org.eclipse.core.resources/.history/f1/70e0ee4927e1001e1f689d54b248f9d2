@@ -1,0 +1,95 @@
+package my.com.cmg.iwp.common.util;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+import my.com.cmg.iwp.webui.util.ReflectionUtil;
+
+import org.hibernate.criterion.ProjectionList;
+import org.springframework.dao.support.DataAccessUtils;
+import org.zkoss.spring.SpringUtil;
+//import my.com.cmg.phis.backend.dao.impl.BasisNextidDaoImpl;
+//import my.com.cmg.phis.webui.util.ReflectionUtil;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+
+/**
+ * @author Tapan Kumar Sabat
+ *
+ * @param <E>
+ */
+public class DetachedCriteriaSearchObject<E extends Object> extends SearchObject<E> {
+	
+	private Class rootEntityClass;
+	private ProjectionList projList;
+	private DetachedCriteria detachedCriteria;
+	private String pkProperty;
+	
+	public DetachedCriteriaSearchObject(Class<E> searchClass,DetachedCriteria detachedCriteria,ProjectionList projList) {
+		this.searchClass = searchClass;
+		this.detachedCriteria = detachedCriteria;
+		this.projList = projList;
+	}
+
+	public DetachedCriteriaSearchObject(Class<E> searchClass,DetachedCriteria detachedCriteria, int pageSize) {
+		this.searchClass = searchClass;
+		this.pageSize = pageSize;
+		this.detachedCriteria = detachedCriteria;
+		setGeneralDAO((BasisNextidDaoImpl)SpringUtil.getBean("basisNextidDao"));
+	}
+	
+	@Override
+	public List<Object> getSearchResult(int pageNo, int pageSize) {
+		/*List<Object> pksList = getPkList(pageNo);
+		detachedCriteria.setProjection(null);
+		detachedCriteria.setProjection(Projections.distinct(Projections.property(getPkProperty())));
+		detachedCriteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		//detachedCriteria.setProjection(Projections.distinct(Projections.property(getPkProperty())));
+		//detachedCriteria.setProjection(Projections.projectionList().add(Projections.groupProperty(getPkProperty())));*/
+		return getPkList(pageNo,pageSize);
+	}
+	
+	private List<Object> getPkList(int pageNo, int pageSize) {
+		//.setProjection(Projections.distinct(Projections.property("id")));
+		List<Object> ids = new LinkedList<Object>();
+		detachedCriteria.setProjection(null);
+		detachedCriteria.setProjection(Projections.distinct(Projections.property(getPkProperty())));
+		//detachedCriteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		
+		int fromIndex = (pageNo == 0 ? pageNo : (pageNo*pageSize)+1);
+		
+		ids = getGeneralDAO().findByCriteria(detachedCriteria,fromIndex,pageSize);
+		
+		return ids;
+		/*int fromIndex = pageNo;
+		int toIndex = fromIndex + pageSize;
+		
+		return ids.subList(fromIndex,toIndex);*/
+	}
+
+	@Override
+	public int countSearchObjectResult() {
+		detachedCriteria.setProjection(null);
+		detachedCriteria.setProjection(Projections.countDistinct(getPkProperty()));
+		return DataAccessUtils.uniqueResult(getGeneralDAO().findByCriteria(detachedCriteria));
+	}
+	
+	@Override
+	public String getSelectedAttributesAnnotation(String fieldName) {
+		return null;
+	}
+
+	/******ACCESSORS AND MUTATORS******/
+	public DetachedCriteria getDetachedCriteria() { return detachedCriteria; }
+	public void setDetachedCriteria(DetachedCriteria detachedCriteria) { this.detachedCriteria = detachedCriteria; }
+
+	public String getPkProperty() { return pkProperty; }
+	public void setPkProperty(String pkProperty) { this.pkProperty = pkProperty; }
+
+	public Class getRootEntityClass() { return rootEntityClass; }
+	public void setRootEntityClass(Class rootEntityClass) { 
+		this.rootEntityClass = rootEntityClass; 
+		setPkProperty(ReflectionUtil.getPkProperty(rootEntityClass));
+	}
+}

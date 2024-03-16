@@ -1,0 +1,46 @@
+package my.com.cmg.iwp.common.util;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+/**
+ * @author Tapan Kumar Sabat
+ *
+ */
+public abstract class SearchObject<E extends Object> {
+	protected BasisNextidDaoImpl generalDAO;
+	protected Class<E> searchClass;
+	protected int pageSize = 10;
+	protected int firstResult;
+	protected int maxResults;
+	protected Map<String,Boolean> sortColumns = new HashMap<String, Boolean>(1);
+	
+	public abstract List<Object> getSearchResult(int pageNo,int pageSize);
+	
+	public abstract int countSearchObjectResult();
+	
+	public abstract String getSelectedAttributesAnnotation(String fieldName);
+	
+	public void addSort(String column,boolean isASC) { sortColumns.put(column, isASC); }
+	
+	public void clearSorts() { sortColumns.clear(); }
+	
+	/******ACCESSORS AND MUTATORS******/
+	public int getPageSize() { return pageSize; }
+	public void setPageSize(int pageSize) { this.pageSize = pageSize; }
+
+	public int getFirstResult() { return firstResult; }
+	public void setFirstResult(int firstResult) { this.firstResult = firstResult; }
+
+	public int getMaxResults() { return maxResults; }
+	public void setMaxResults(int maxResults) { this.maxResults = maxResults; }
+	
+	public Class getSearchClass() { return searchClass; }
+	public void setSearchClass(Class searchClass) { this.searchClass = searchClass; }
+	
+	public BasisNextidDaoImpl getGeneralDAO() { return this.generalDAO; }
+	public void setGeneralDAO(BasisNextidDaoImpl generalDAO) { this.generalDAO = generalDAO; }
+}

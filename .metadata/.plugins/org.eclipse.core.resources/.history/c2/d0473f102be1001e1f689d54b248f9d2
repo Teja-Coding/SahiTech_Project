@@ -1,0 +1,10 @@
+package my.com.cmg.iwp.maintenance.dao.impl;
+
+import my.com.cmg.iwp.maintenance.model.DoDtl;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class DoDtlDAOImpl extends BasisNextidDaoImpl<DoDtl> {
+
+}

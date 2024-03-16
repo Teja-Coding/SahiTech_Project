@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.integration.returns.impl;
+
+import my.com.cmg.iwp.backend.model.integration.returns.ReturnInterHdrsInt;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class ReturnInterHdrsIntDAOImpl extends BasisNextidDaoImpl<ReturnInterHdrsInt> {
+
+}

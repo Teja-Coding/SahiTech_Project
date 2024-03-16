@@ -1,0 +1,7 @@
+package my.com.cmg.iwp.maintenance.dao.impl;
+
+import my.com.cmg.iwp.maintenance.model.ContractHdr;
+
+public class ContractHdrDAOImpl extends BasisNextidDaoImpl<ContractHdr> {
+
+}

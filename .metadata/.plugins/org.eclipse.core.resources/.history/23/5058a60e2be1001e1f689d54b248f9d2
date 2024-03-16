@@ -1,0 +1,7 @@
+package my.com.cmg.iwp.maintenance.service;
+
+import my.com.cmg.backend.model.sdr.SpecialDrugTreatment;
+
+public interface SpecialDrugTreatmentService {
+	void saveOrUpdate(SpecialDrugTreatment specialDrugTreatment);
+}

@@ -1,0 +1,5 @@
+package my.com.cmg.iwp.backend.model.integration.spub;
+
+public class NormalDoseFreqAlternateInt {
+
+}

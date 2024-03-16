@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.integration.spub.impl;
+
+import my.com.cmg.iwp.backend.model.integration.spub.SpubDtlsInt;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class SpubDtlsIntDAOImpl extends BasisNextidDaoImpl<SpubDtlsInt> {
+
+}

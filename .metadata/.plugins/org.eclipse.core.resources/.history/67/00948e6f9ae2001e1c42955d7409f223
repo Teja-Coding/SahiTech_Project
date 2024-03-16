@@ -1,0 +1,34 @@
+package my.com.cmg.iwp.maintenance.service.impl;
+
+import java.util.List;
+
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+import my.com.cmg.iwp.maintenance.model.AltUom;
+import my.com.cmg.iwp.maintenance.service.AltUomService;
+import my.com.cmg.iwp.webui.constant.RefCodeConstant;
+
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.support.DataAccessUtils;
+
+public class AltUomServiceImpl implements AltUomService {
+
+	private BasisNextidDaoImpl<AltUom> altUomDAO;
+
+	public void setAltUomDAO(BasisNextidDaoImpl<AltUom> altUomDAO) {
+		this.altUomDAO = altUomDAO;
+	}
+
+	public BasisNextidDaoImpl<AltUom> getAltUomDAO() {
+		return altUomDAO;
+	}
+
+	@Override
+	public AltUom getAltUomSeqno(AltUom altUom) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(AltUom.class);
+		criteria.add(Restrictions.eq("altUomSeqno", altUom.getAltUomSeqno()));
+		return DataAccessUtils.uniqueResult(altUomDAO.findByCriteria(criteria));
+	}
+}

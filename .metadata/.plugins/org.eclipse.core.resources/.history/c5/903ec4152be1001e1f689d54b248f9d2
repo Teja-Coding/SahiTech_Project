@@ -1,0 +1,73 @@
+package my.com.cmg.iwp.common.util;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.util.HashMap;
+
+public class PatientHoppingUtil {
+	private Method myMethod = null;
+	private Class myClass = null;
+	private Object myObject = null;
+	private String filePath;
+
+	@SuppressWarnings("unchecked")
+	public String PatientHoppingDB(HashMap<String, String> connectionMap, HashMap<String, String> searchMap,
+			Connection repoConnection) {
+		String jarPath = "/home/phisesb/phisjars/PatientHopping.jar";
+		// jarPath = "C:\\Properties\\PatientHopping.jar";
+		try {
+			System.out.println("JAR Path : " + jarPath);
+
+			myClass = getClass(jarPath, "my.com.cmg.patienthopping.PatientHope");
+			myMethod = myClass.getMethod("insertPatientHoppingStgData",
+					new Class[] { HashMap.class, HashMap.class, Connection.class });
+			myObject = myClass.newInstance();
+			return myMethod.invoke(myObject, connectionMap, searchMap, repoConnection).toString();
+		} catch (MalformedURLException e) {
+			System.out.println("Error Captured 8");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			System.out.println("Error Captured 7");
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			System.out.println("Error Captured 6");
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			System.out.println("Error Captured 5");
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			System.out.println("Error Captured 4");
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			System.out.println("Error Captured 3");
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			System.out.println("Error Captured 2");
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			System.out.println("Error Captured 1");
+			e.printStackTrace();
+		} catch (RuntimeException e) {
+			System.out.println("Error Captured");
+			// e.printStackTrace();
+		} finally {
+
+		}
+		return null;
+	}
+
+	private Class getClass(String jarFileName, String className) throws MalformedURLException, ClassNotFoundException {
+		return getClassLoader(jarFileName).loadClass(className);
+	}
+
+	private URLClassLoader getClassLoader(String fileName) throws MalformedURLException {
+		File myfile = new File(fileName);
+		URL myJarFile = new URL("jar", "", "file:" + myfile.getAbsolutePath() + "!/");
+		return URLClassLoader.newInstance(new URL[] { myJarFile });
+	}
+}

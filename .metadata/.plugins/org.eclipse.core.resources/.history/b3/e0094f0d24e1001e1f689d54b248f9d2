@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.maintenance.model.report.stg;
+
+public class Snippet {
+	public static void main(String[] args) {
+		my.com.cmg.iwp.maintenance.model.report.stg
+	}
+}
+

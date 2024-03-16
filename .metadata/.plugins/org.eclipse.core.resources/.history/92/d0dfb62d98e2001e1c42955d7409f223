@@ -1,0 +1,8 @@
+package my.com.cmg.iwp.backend.dao.impl;
+
+import my.com.cmg.iwp.backend.model.sdr.SpecialDrugApproval;
+import my.com.cmg.iwp.maintenance.dao.impl.BasisNextidDaoImpl;
+
+public class SpecialDrugApprovalDAOImpl extends BasisNextidDaoImpl<SpecialDrugApproval>{
+
+}

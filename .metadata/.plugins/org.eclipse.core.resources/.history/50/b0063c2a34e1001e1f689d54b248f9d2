@@ -1,0 +1,135 @@
+package my.com.cmg.iwp.integration;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import my.com.cmg.iwp.backend.model.integration.spub.NormalDoseFrequencyInt;
+import my.com.cmg.iwp.backend.model.integration.spub.SpubDtlsInt;
+import my.com.cmg.iwp.backend.model.integration.spub.SpubHdrsInt;
+import my.com.cmg.iwp.backend.service.integration.spub.SpubAllergiesIntService;
+import my.com.cmg.iwp.backend.service.integration.spub.SpubAlternateIntService;
+import my.com.cmg.iwp.backend.service.integration.spub.SpubDiagnosisIntService;
+import my.com.cmg.iwp.backend.service.integration.spub.SpubDtlsIntService;
+import my.com.cmg.iwp.backend.service.integration.spub.SpubHdrsIntService;
+import my.com.cmg.iwp.webui.constant.RefCodeConstant;
+
+
+@Controller
+public class IntegrationRest {
+	
+	@Autowired
+	private SpubHdrsIntService spubHdrsIntService;
+	
+	@Autowired
+	private SpubAllergiesIntService spubAllergiesIntService;
+	
+	@Autowired
+	private SpubDtlsIntService spubDtlsIntService;
+	
+	@Autowired
+	private SpubDiagnosisIntService spubDiagnosisIntService;
+		
+	//	@Autowired
+	//	private SpubAlternateIntService spubAlternateIntService;
+	
+	@Autowired
+	private SpubAlternateIntService spubAlternateIntService;
+	
+	
+	@RequestMapping(value = "/spub/post", method = RequestMethod.POST, headers = "Accept= application/json")
+	public @ResponseBody int createSPUB(@RequestBody SpubHdrsInt spubHdrsInt) {
+		System.out.println(".........PHIS WS SPUB POST EXECUTED............");
+
+		Acknowledgement acknowledgement = new Acknowledgement();
+		List<Long> primaryKeyValues = new ArrayList<Long>();
+		Long primaryKeyValue = null;
+
+		if (acknowledgement.getEntityName() == null) {
+			acknowledgement.setEntityName(SpubHdrsInt.class.getSimpleName());
+			acknowledgement.setUpdateColumnName("sendFlag");
+			acknowledgement.setUpdateColumnValue(RefCodeConstant.BOOLEAN_NO);
+			acknowledgement.setPrimaryKeyColumnName("spubHdrSeqno");
+		}
+
+		primaryKeyValue = spubHdrsInt.getSpubHdrSeqno();
+
+		try {
+			if (spubHdrsIntService.isNotExisted(spubHdrsInt.getSpubNo(), spubHdrsInt.getPtjCode(),
+					spubHdrsInt.getFacCode())) {
+				System.out.println("\n\n==================>spubHdrsIntService: " + this.spubHdrsIntService);
+				System.out.println("\n\nspubHdrsInt" + spubHdrsInt.getPatientMrn());
+				spubHdrsInt.setSpubHdrSeqno(0);
+				spubHdrsInt.setUpdatedDate(new Date());
+				this.spubHdrsIntService.saveOrUpdate(spubHdrsInt);
+
+				Set<SpubDtlsInt> spubDtlsInts = spubHdrsInt.getSpubDtlsInts();
+				for (SpubDtlsInt spubDtlsInt : spubDtlsInts) {
+					spubDtlsInt.setUpdatedDate(new Date());
+					this.spubDtlsIntService.saveOrUpdate(spubDtlsInt);
+					for (NormalDoseFrequencyInt normalDoseFrequencyInt : spubDtlsInt.getNormalDoseFrequencyInts()) {
+						normalDoseFrequencyInt.setSpubDtlsInt(spubDtlsInt);
+						normalDoseFrequencyInt.setUpdatedDate(new Date());
+						this.normalDoseFrequencyIntService.create(normalDoseFrequencyInt);
+					}
+					for (SuborderTaperStatInt suborderTaperStatInt : spubDtlsInt.getSuborderTaperStatInts()) {
+						suborderTaperStatInt.setSpubDtlsInt(spubDtlsInt);
+						suborderTaperStatInt.setUpdatedDate(new Date());
+						this.suborderTaperStatIntService.create(suborderTaperStatInt);
+					}
+				}
+
+				Set<SpubAllergiesInt> spubAllergiesInts = spubHdrsInt.getSpubAllergiesInts();
+				for (SpubAllergiesInt spubAllergiesInt : spubAllergiesInts) {
+					spubAllergiesInt.setUpdatedDate(new Date());
+					this.spubAllergiesIntService.saveOrUpdate(spubAllergiesInt);
+				}
+				/*
+				 * Set<SpubDtlsInt> spubDtlsInts = spubHdrsInt.getSpubDtlsInts(); for
+				 * (SpubDtlsInt spubDtlsInt : spubDtlsInts) { spubDtlsInt.setUpdatedDate(new
+				 * Date()); this.spubDtlsIntService.saveOrUpdate(spubDtlsInt);
+				 * for(NormalDoseFrequencyInt normalDoseFrequencyInt:
+				 * spubDtlsInt.getNormalDoseFrequencyInts()){
+				 * normalDoseFrequencyInt.setSpubDtlsInt(spubDtlsInt);
+				 * normalDoseFrequencyInt.setUpdatedDate(new Date());
+				 * this.normalDoseFrequencyIntService.create(normalDoseFrequencyInt); }
+				 * for(SuborderTaperStatInt
+				 * suborderTaperStatInt:spubDtlsInt.getSuborderTaperStatInts()){
+				 * suborderTaperStatInt.setSpubDtlsInt(spubDtlsInt);
+				 * suborderTaperStatInt.setUpdatedDate(new Date());
+				 * this.suborderTaperStatIntService.create(suborderTaperStatInt); } }
+				 */
+				Set<SpubDiagnosisInt> spubDiagnosisInts = spubHdrsInt.getSpubDiagnosisInts();
+				for (SpubDiagnosisInt spubDiagnosisInt : spubDiagnosisInts) {
+					spubDiagnosisInt.setUpdatedDate(new Date());
+					this.spubDiagnosisIntService.saveOrUpdate(spubDiagnosisInt);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		primaryKeyValues.add(primaryKeyValue);
+
+		acknowledgement.setPrimaryKeyValues(primaryKeyValues);
+//		ExternalFacility externalFacility = externalFacilityService.findByFacilityCode(spubHdrsInt.getReferredFrom());
+		ExternalFacility externalFacility = externalFacilityService
+				.findBySeqNo(Long.valueOf(spubHdrsInt.getReferredFrom()));
+		RestUtil.submit(acknowledgement, integrationLogService, restTemplate, externalFacility, refCodesService);
+
+		return 88;
+	}
+
+	
+	
+	
+
+}
